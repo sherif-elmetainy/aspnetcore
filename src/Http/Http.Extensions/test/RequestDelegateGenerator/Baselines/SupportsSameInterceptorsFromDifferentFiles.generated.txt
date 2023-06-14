@@ -61,6 +61,7 @@ namespace Microsoft.AspNetCore.Http.Generated
         private static readonly string[] PatchVerb = new[] { Microsoft.AspNetCore.Http.HttpMethods.Patch };
 
         [InterceptsLocation(@"TestMapActions.cs", 25, 13)]
+        [InterceptsLocation(@"OtherTestMapActions.cs", 25, 13)]
         internal static RouteHandlerBuilder MapGet_2525(
             this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints,
             [System.Diagnostics.CodeAnalysis.StringSyntax("Route")] string pattern,
@@ -71,20 +72,7 @@ namespace Microsoft.AspNetCore.Http.Generated
                 Debug.Assert(options != null, "RequestDelegateFactoryOptions not found.");
                 Debug.Assert(options.EndpointBuilder != null, "EndpointBuilder not found.");
                 options.EndpointBuilder.Metadata.Add(new System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.AspNetCore.Http.RequestDelegateGenerator, Version=42.42.42.42, Culture=neutral, PublicKeyToken=adb9793829ddae60", "42.42.42.42"));
-                var serviceProvider = options.ServiceProvider ?? options.EndpointBuilder.ApplicationServices;
-                var serviceProviderIsService = serviceProvider.GetRequiredService<IServiceProviderIsService>();
-                var jsonBodyOrServiceTypeTuples = new (bool, Type)[] {
-                    (false, typeof(System.String[])),
-                };
-                foreach (var (isOptional, type) in jsonBodyOrServiceTypeTuples)
-                {
-                    if (!serviceProviderIsService.IsService(type))
-                    {
-                        options.EndpointBuilder.Metadata.Add(new GeneratedAcceptsMetadata(type: type, isOptional: isOptional, contentTypes: GeneratedMetadataConstants.JsonContentType));
-                        break;
-                    }
-                }
-                options.EndpointBuilder.Metadata.Add(new GeneratedProducesResponseTypeMetadata(type: typeof(System.Int32), statusCode: StatusCodes.Status200OK, contentTypes: GeneratedMetadataConstants.JsonContentType));
+                options.EndpointBuilder.Metadata.Add(new GeneratedProducesResponseTypeMetadata(type: null, statusCode: StatusCodes.Status200OK, contentTypes: GeneratedMetadataConstants.PlaintextContentType));
                 return new RequestDelegateMetadataResult { EndpointMetadata = options.EndpointBuilder.Metadata.AsReadOnly() };
             };
             RequestDelegateFactoryFunc createRequestDelegate = (del, options, inferredMetadataResult) =>
@@ -93,14 +81,13 @@ namespace Microsoft.AspNetCore.Http.Generated
                 Debug.Assert(options.EndpointBuilder != null, "EndpointBuilder not found.");
                 Debug.Assert(options.EndpointBuilder.ApplicationServices != null, "ApplicationServices not found.");
                 Debug.Assert(options.EndpointBuilder.FilterFactories != null, "FilterFactories not found.");
-                var handler = Cast(del, System.Int32 (System.String[] arg0) => throw null!);
+                var handler = Cast(del, System.String (System.String arg0) => throw null!);
                 EndpointFilterDelegate? filteredInvocation = null;
                 var serviceProvider = options.ServiceProvider ?? options.EndpointBuilder.ApplicationServices;
                 var logOrThrowExceptionHelper = new LogOrThrowExceptionHelper(serviceProvider, options);
                 var jsonOptions = serviceProvider?.GetService<IOptions<JsonOptions>>()?.Value ?? new JsonOptions();
                 var objectJsonTypeInfo = (JsonTypeInfo<object?>)jsonOptions.SerializerOptions.GetTypeInfo(typeof(object));
-                var responseJsonTypeInfo =  (JsonTypeInfo<System.Int32>)jsonOptions.SerializerOptions.GetTypeInfo(typeof(System.Int32));
-                var p_JsonTypeInfo =  (JsonTypeInfo<System.String[]>)jsonOptions.SerializerOptions.GetTypeInfo(typeof(System.String[]));
+                var name_RouteOrQueryResolver = GeneratedRouteBuilderExtensionsCore.ResolveFromRouteOrQuery("name", options.RouteParameterNames);
 
                 if (options.EndpointBuilder.FilterFactories.Count > 0)
                 {
@@ -110,66 +97,60 @@ namespace Microsoft.AspNetCore.Http.Generated
                         {
                             return ValueTask.FromResult<object?>(Results.Empty);
                         }
-                        return ValueTask.FromResult<object?>(handler(ic.GetArgument<System.String[]>(0)!));
+                        return ValueTask.FromResult<object?>(handler(ic.GetArgument<System.String>(0)!));
                     },
                     options.EndpointBuilder,
                     handler.Method);
                 }
 
-                async Task RequestHandler(HttpContext httpContext)
+                Task RequestHandler(HttpContext httpContext)
                 {
                     var wasParamCheckFailure = false;
-                    // Endpoint Parameter: p (Type = string[], IsOptional = False, IsParsable = False, IsArray = True, Source = JsonBodyOrQuery)
-                    System.String[] p_local = null!;
-                    if (options.DisableInferBodyFromParameters)
+                    // Endpoint Parameter: name (Type = string, IsOptional = False, IsParsable = False, IsArray = False, Source = RouteOrQuery)
+                    var name_raw = name_RouteOrQueryResolver(httpContext);
+                    if (name_raw is StringValues { Count: 0 })
                     {
-                        var p_raw = httpContext.Request.Query["p"];
-                        p_local = p_raw!;
+                        wasParamCheckFailure = true;
+                        logOrThrowExceptionHelper.RequiredParameterNotProvided("string", "name", "route or query string");
                     }
-                    else
-                    {
-                        var p_resolveBodyResult = await GeneratedRouteBuilderExtensionsCore.TryResolveBodyAsync<System.String[]>(httpContext, logOrThrowExceptionHelper, false, "string[]", "p", p_JsonTypeInfo);
-                        p_local = p_resolveBodyResult.Item2!;
-                        if (!p_resolveBodyResult.Item1)
-                        {
-                            return;
-                        }
-                    }
+                    var name_temp = (string?)name_raw;
+                    string name_local = name_temp!;
 
                     if (wasParamCheckFailure)
                     {
                         httpContext.Response.StatusCode = 400;
-                        return;
+                        return Task.CompletedTask;
                     }
-                    var result = handler(p_local);
-                    await httpContext.Response.WriteAsJsonAsync(result, responseJsonTypeInfo);
+                    var result = handler(name_local!);
+                    if (result is string)
+                    {
+                        httpContext.Response.ContentType ??= "text/plain; charset=utf-8";
+                    }
+                    else
+                    {
+                        httpContext.Response.ContentType ??= "application/json; charset=utf-8";
+                    }
+                    return httpContext.Response.WriteAsync(result);
                 }
 
                 async Task RequestHandlerFiltered(HttpContext httpContext)
                 {
                     var wasParamCheckFailure = false;
-                    // Endpoint Parameter: p (Type = string[], IsOptional = False, IsParsable = False, IsArray = True, Source = JsonBodyOrQuery)
-                    System.String[] p_local = null!;
-                    if (options.DisableInferBodyFromParameters)
+                    // Endpoint Parameter: name (Type = string, IsOptional = False, IsParsable = False, IsArray = False, Source = RouteOrQuery)
+                    var name_raw = name_RouteOrQueryResolver(httpContext);
+                    if (name_raw is StringValues { Count: 0 })
                     {
-                        var p_raw = httpContext.Request.Query["p"];
-                        p_local = p_raw!;
+                        wasParamCheckFailure = true;
+                        logOrThrowExceptionHelper.RequiredParameterNotProvided("string", "name", "route or query string");
                     }
-                    else
-                    {
-                        var p_resolveBodyResult = await GeneratedRouteBuilderExtensionsCore.TryResolveBodyAsync<System.String[]>(httpContext, logOrThrowExceptionHelper, false, "string[]", "p", p_JsonTypeInfo);
-                        p_local = p_resolveBodyResult.Item2!;
-                        if (!p_resolveBodyResult.Item1)
-                        {
-                            return;
-                        }
-                    }
+                    var name_temp = (string?)name_raw;
+                    string name_local = name_temp!;
 
                     if (wasParamCheckFailure)
                     {
                         httpContext.Response.StatusCode = 400;
                     }
-                    var result = await filteredInvocation(EndpointFilterInvocationContext.Create<System.String[]>(httpContext, p_local));
+                    var result = await filteredInvocation(EndpointFilterInvocationContext.Create<System.String>(httpContext, name_local!));
                     if (result is not null)
                     {
                         await GeneratedRouteBuilderExtensionsCore.ExecuteReturnAsync(result, httpContext, objectJsonTypeInfo);
@@ -261,90 +242,15 @@ namespace Microsoft.AspNetCore.Http.Generated
         private static bool ShouldUseWith(this JsonTypeInfo jsonTypeInfo, [NotNullWhen(false)] Type? runtimeType)
             => runtimeType is null || jsonTypeInfo.Type == runtimeType || jsonTypeInfo.HasKnownPolymorphism();
 
-        private static async ValueTask<(bool, T?)> TryResolveBodyAsync<T>(HttpContext httpContext, LogOrThrowExceptionHelper logOrThrowExceptionHelper, bool allowEmpty, string parameterTypeName, string parameterName, JsonTypeInfo<T> jsonTypeInfo, bool isInferred = false)
+        private static Func<HttpContext, StringValues> ResolveFromRouteOrQuery(string parameterName, IEnumerable<string>? routeParameterNames)
         {
-            var feature = httpContext.Features.Get<Microsoft.AspNetCore.Http.Features.IHttpRequestBodyDetectionFeature>();
-            T? bodyValue = default;
-            var bodyValueSet = false;
-
-            if (feature?.CanHaveBody == true)
-            {
-                if (!httpContext.Request.HasJsonContentType())
-                {
-                    logOrThrowExceptionHelper.UnexpectedJsonContentType(httpContext.Request.ContentType);
-                    httpContext.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
-                    return (false, default);
-                }
-                try
-                {
-                    bodyValue = await httpContext.Request.ReadFromJsonAsync(jsonTypeInfo);
-                    bodyValueSet = bodyValue != null;
-                }
-                catch (BadHttpRequestException badHttpRequestException)
-                {
-                    logOrThrowExceptionHelper.RequestBodyIOException(badHttpRequestException);
-                    httpContext.Response.StatusCode = badHttpRequestException.StatusCode;
-                    return (false, default);
-                }
-                catch (IOException ioException)
-                {
-                    logOrThrowExceptionHelper.RequestBodyIOException(ioException);
-                    httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    return (false, default);
-                }
-                catch (System.Text.Json.JsonException jsonException)
-                {
-                    logOrThrowExceptionHelper.InvalidJsonRequestBody(parameterTypeName, parameterName, jsonException);
-                    httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    return (false, default);
-                }
-            }
-
-            if (!allowEmpty && !bodyValueSet)
-            {
-                if (!isInferred)
-                {
-                    logOrThrowExceptionHelper.RequiredParameterNotProvided(parameterTypeName, parameterName, "body");
-                }
-                else
-                {
-                    logOrThrowExceptionHelper.ImplicitBodyNotProvided(parameterName);
-                }
-                httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                return (false, bodyValue);
-            }
-
-            return (true, bodyValue);
+            return routeParameterNames?.Contains(parameterName, StringComparer.OrdinalIgnoreCase) == true
+                ? (httpContext) => new StringValues((string?)httpContext.Request.RouteValues[parameterName])
+                : (httpContext) => httpContext.Request.Query[parameterName];
         }
 
     }
 
-    %GENERATEDCODEATTRIBUTE%
-    file sealed class GeneratedAcceptsMetadata : IAcceptsMetadata
-    {
-        public GeneratedAcceptsMetadata(string[] contentTypes)
-        {
-            ArgumentNullException.ThrowIfNull(contentTypes);
-
-            ContentTypes = contentTypes;
-        }
-
-        public GeneratedAcceptsMetadata(Type? type, bool isOptional, string[] contentTypes)
-        {
-            ArgumentNullException.ThrowIfNull(type);
-            ArgumentNullException.ThrowIfNull(contentTypes);
-
-            RequestType = type;
-            ContentTypes = contentTypes;
-            IsOptional = isOptional;
-        }
-
-        public IReadOnlyList<string> ContentTypes { get; }
-
-        public Type? RequestType { get; }
-
-        public bool IsOptional { get; }
-    }
     %GENERATEDCODEATTRIBUTE%
     file sealed class GeneratedProducesResponseTypeMetadata : IProducesResponseTypeMetadata
     {
