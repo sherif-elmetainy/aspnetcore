@@ -1,12 +1,12 @@
 import { UpdateCost, ItemList, Operation, computeEditScript } from './EditScript';
 
-export function synchronizeDomContent(destination: CommentBoundedRange | Element, newContent: DocumentFragment | Element) {
+export function synchronizeDomContent(destination: CommentBoundedRange | Node, newContent: Node) {
   let destinationParent: Node;
   let nextDestinationNode: Node | null;
   let originalNodesForDiff: ItemList<Node>;
 
   // Figure out how to interpret the 'destination' parameter, since it can come in two very different forms
-  if (destination instanceof Element) {
+  if (destination instanceof Node) {
     destinationParent = destination;
     nextDestinationNode = destination.firstChild;
     originalNodesForDiff = destination.childNodes;
@@ -65,7 +65,7 @@ export function synchronizeDomContent(destination: CommentBoundedRange | Element
 
     // Handle any common trailing items
     // These can only exist if there were some edits, otherwise everything would be in the set of common leading items
-    const endAtNodeExclOrNull = destination instanceof Element ? null : destination.endExclusive;
+    const endAtNodeExclOrNull = destination instanceof Node ? null : destination.endExclusive;
     while (nextDestinationNode !== endAtNodeExclOrNull) {
       treatAsMatch(nextDestinationNode!, nextNewContentNode!);
       nextDestinationNode = nextDestinationNode!.nextSibling;
@@ -87,6 +87,9 @@ function treatAsMatch(destination: Node, source: Node) {
     case Node.ELEMENT_NODE:
       synchronizeAttributes(destination as Element, source as Element);
       synchronizeDomContent(destination as Element, source as Element);
+      break;
+    case Node.DOCUMENT_TYPE_NODE:
+      // See comment below about doctype nodes. We leave them alone.
       break;
     default:
       throw new Error(`Not implemented: matching nodes of type ${destination.nodeType}`);
@@ -124,6 +127,10 @@ function domNodeComparer(a: Node, b: Node): UpdateCost {
       //       For the converse (forcing retention, even if that means reordering), we could post-process the list of
       //       inserts/deletes to find matches based on key to treat those pairs as 'move' operations.
       return (a as Element).tagName === (b as Element).tagName ? UpdateCost.None : UpdateCost.Infinite;
+    case Node.DOCUMENT_TYPE_NODE:
+      // It's invalid to insert or delete doctype, and we have no use case for doing that. So just skip such
+      // nodes by saying they are always unchanged.
+      return UpdateCost.None;
     default:
       // For anything else we know nothing, so the risk-averse choice is to say we can't retain or update the old value
       return UpdateCost.Infinite;
